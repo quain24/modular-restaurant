@@ -1,20 +1,52 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using ModularRestaurant.Shared.Domain.Common;
 using System;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ModularRestaurant.Shared.Infrastructure.EF
 {
     public class DbContextBase : DbContext
     {
         private const string ConnectionString = "Sql:ConnectionString";
+        private readonly IMediator _mediator;
 
         public DbContextBase()
         {
         }
 
-        public DbContextBase(DbContextOptions options) : base(options)
+        public DbContextBase(DbContextOptions options, IMediator mediator) : base(options)
         {
+            _mediator = mediator;
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            // TODO consider applying outbox pattern!
+
+            var result = await base.SaveChangesAsync(cancellationToken);
+            if(result > 0)
+            {
+                var entitiesWithEvents = ChangeTracker
+                    .Entries<Entity>()
+                    .Select(x => x.Entity)
+                    .Where(x => x.Events.Any())
+                    .ToArray();
+
+                foreach(var entity in entitiesWithEvents)
+                {
+                    foreach(var domainEvent in entity.Events)
+                    {
+                        await _mediator.Publish(domainEvent, cancellationToken);
+                    }
+                }
+            }
+
+            return result;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
