@@ -23,6 +23,12 @@ namespace ModularRestaurant.Menus.Infrastructure.EF.Repositories
             await _menus.AddAsync(menu, token);
         }
 
+        public Task<Menu> GetActiveMenu()
+        {
+            // todo depends on implemenation in Menu - check todo there
+            return _menus.FirstOrDefaultAsync(x => x.IsActive);
+        }
+
         public async Task<Menu> GetAsync(MenuId menuId, CancellationToken token)
         {
             var menu = await _menus.SingleOrDefaultAsync(x => x.Id == menuId, token);

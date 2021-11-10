@@ -14,6 +14,8 @@ namespace ModularRestaurant.Menus.Domain.Entities
 {
     public class Menu : AggregateRoot<MenuId>
     {
+        public bool IsActive { get; private set; }
+
         public string InternalName { get; private set; }
         
         public RestaurantId RestaurantId { get; private set; }
@@ -44,11 +46,13 @@ namespace ModularRestaurant.Menus.Domain.Entities
             return menu;
         }
         
-        internal void Activate()
+        public void Activate()
         {
             CheckRule(new ActiveMenuMustHaveAtLeastOneGroup(_groups));
             
             _groups.ForEach(x => x.CheckConsistency());
+            // Todo persist in database as computed column or as a value or make an disconnected calculation
+            IsActive = true;
         }
 
         public static Menu Create(RestaurantId restaurantId, string internalName, IRestaurantRepository restaurantRepository)

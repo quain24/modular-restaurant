@@ -11,6 +11,8 @@ namespace ModularRestaurant.Ratings.Domain.Entities
     {
         public IReadOnlyList<UserRating> UserRatings => _userRatings;
         private List<UserRating> _userRatings = new();
+        private MenuId _menuId;
+
 
         private Restaurant()
         {
@@ -43,6 +45,14 @@ namespace ModularRestaurant.Ratings.Domain.Entities
             CheckRule(new CanAddReplyOnlyToExistingUserRatingRule(userRating));
             
             userRating!.AddRestaurantReply(text);
+        }
+
+        public void AssignMenu(MenuId id)
+        {
+            if (_menuId == id)
+                return;
+            _menuId = id;
+            Events.Add(new MenuChangedEvent(id));
         }
     }
 }
