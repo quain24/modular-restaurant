@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace ModularRestaurant.Shared.Domain.Common
 {
     public abstract class Entity<T> : Entity
+        where T : TypeId
     {
         public T Id { get; protected set; }
     }
