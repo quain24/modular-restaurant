@@ -1,4 +1,5 @@
-﻿using ModularRestaurant.Ratings.Domain.Rules;
+﻿using ModularRestaurant.Ratings.Domain.Events;
+using ModularRestaurant.Ratings.Domain.Rules;
 using ModularRestaurant.Shared.Domain.Common;
 using ModularRestaurant.Shared.Domain.Types;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace ModularRestaurant.Ratings.Domain.Entities
         public Restaurant(RestaurantId id)
         {
             Id = id;
+            Events.Add(new RestaurantCreatedEvent(id));
         }
 
         //TODO: Removed after add integration with restaurantModule

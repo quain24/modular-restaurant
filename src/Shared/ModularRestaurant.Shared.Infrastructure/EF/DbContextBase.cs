@@ -21,6 +21,8 @@ namespace ModularRestaurant.Shared.Infrastructure.EF
 
         public DbContextBase(DbContextOptions options, IMediator mediator) : base(options)
         {
+            // TODO think about creating custom date time service for events and replace DateTime.Now with custom service
+            // to simplify unit testing.
             _mediator = mediator;
         }
 
@@ -41,6 +43,7 @@ namespace ModularRestaurant.Shared.Infrastructure.EF
                 {
                     foreach(var domainEvent in entity.Events)
                     {
+                        domainEvent.Timestamp = DateTime.Now;
                         await _mediator.Publish(domainEvent, cancellationToken);
                     }
                 }
